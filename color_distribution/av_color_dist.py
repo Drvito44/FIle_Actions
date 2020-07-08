@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
+#Each pixel is 3.821 micron (3.821micron/pixel), the particle sie is -180 +44 micron or -47 +12 pixels
 
 DIR_PATH = '/home/dylan/Documents/Computer_vision/color_distribution/'
 KERNEL_SIZE = 10
