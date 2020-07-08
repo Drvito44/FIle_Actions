@@ -11,7 +11,10 @@ from matplotlib import pyplot as plt
 #Each pixel is 3.821 micron (3.821micron/pixel), the particle sie is -180 +44 micron or -47 +12 pixels
 
 DIR_PATH = '/home/dylan/Documents/Computer_vision/color_distribution/'
-KERNEL_SIZE = 10
+KERNEL_SIZE = 1
+AV_PARTICLE_SIZE_IN_PIXELS = math.floor(((63*0.175/3.821)+((180+125)/2*0.525/3.821))) #63 micron is the average particle size of the angular WC that made up 17.5% of the sample
+#The particle size range for spherical WC is 125-180 micron making up 52.5% of the sample
+LINE_LENGTH = math.floor(AV_PARTICLE_SIZE_IN_PIXELS*(1/8))
 
 file_ids = next(os.walk(DIR_PATH))[2]
 
@@ -23,13 +26,24 @@ for ids_ in tqdm(enumerate(file_ids), total=len(file_ids)):
         img = cv2.imread(im_dir,1)
         im_len = img.shape[1]
         im_hei = img.shape[0]
+
+        #kernel setup
         hor_tran = math.floor(im_len/KERNEL_SIZE)
         ver_tran = math.floor(im_hei/KERNEL_SIZE)
-        # print(hor_tran, ver_tran)
         av_RGB_int = []
         av_red_int = []
         av_blue_int = []
         av_green_int = []
+        sum_RGB = []
+
+        #Line setup
+        hor_line = math.floor(im_len/LINE_LENGTH)
+        ver_line = math.floor(im_hei/LINE_LENGTH)
+        av_RGB_line = []
+        av_red_line = []
+        av_blue_line = []
+        av_green_line = []
+        sum_RGB_line = []
 
         for hor_stride in range(hor_tran):
             for ver_stride in range(ver_tran):
@@ -40,7 +54,10 @@ for ids_ in tqdm(enumerate(file_ids), total=len(file_ids)):
                 av_green_int.append(av_pix_int[1])
                 av_blue_int.append(av_pix_int[2])
                 av_RGB_int.append(np.mean(kern_im))
+                sum_RGB.append(np.sum(kern_im))
                 # print(av_pix_int, av_red_int, av_green_int, av_blue_int, av_RGB_int)
+        
+
         im_id = ids.split('.')[0]    
         PLOT_DIR = DIR_PATH + 'plots/' + im_id + '/'
         KERNEL_DIR = PLOT_DIR + im_id + '_kernel_size_' + str(KERNEL_SIZE) + '/'
@@ -82,10 +99,15 @@ for ids_ in tqdm(enumerate(file_ids), total=len(file_ids)):
         plt.ylabel('Count')
         plt.title('Average Pixel Distribution for RGB Channels using' + str(KERNEL_SIZE) + 'x' + str(KERNEL_SIZE) + 'Kernel')
         plt.savefig(KERNEL_DIR + 'average_RGB_pix_intensity.png')
-        plt.show()        
+        plt.show()       
 
-
-
+        plt.hist(sum_RGB,bins=128)
+        plt.xlim([0,256])
+        plt.xlabel('Pixel_Value')
+        plt.ylabel('Count')
+        plt.title('Sum of the Pixel Values for RGB Channels using' + str(KERNEL_SIZE) + 'x' + str(KERNEL_SIZE) + 'Kernel')
+        plt.savefig(KERNEL_DIR + 'Sum_RGB_pix_intensity.png')
+        plt.show()  
        
               
 
